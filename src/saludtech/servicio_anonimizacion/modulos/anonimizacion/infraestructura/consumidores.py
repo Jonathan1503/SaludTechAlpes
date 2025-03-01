@@ -16,7 +16,10 @@ def suscribirse_a_eventos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        consumidor = cliente.subscribe('eventos-proceso_ingestion', consumer_type=_pulsar.ConsumerType.Shared, subscription_name='anonimizacion-sub-eventos', schema=AvroSchema(EventoProcesoAnonimizacionCreado))
+        consumidor = cliente.subscribe('eventos-proceso_ingestion', 
+                                      consumer_type=_pulsar.ConsumerType.Shared, 
+                                      subscription_name='anonimizacion-sub-eventos', 
+                                      schema=AvroSchema(EventoProcesoAnonimizacionCreado))
 
         while True:
             mensaje = consumidor.receive()
@@ -28,8 +31,8 @@ def suscribirse_a_eventos():
             consumidor.acknowledge(mensaje)     
 
         cliente.close()
-    except:
-        logging.error('ERROR: Suscribiendose al tópico de eventos!')
+    except Exception as e:
+        logging.error(f'ERROR: Suscribiendose al tópico de eventos: {str(e)}')
         traceback.print_exc()
         if cliente:
             cliente.close()
@@ -38,7 +41,10 @@ def suscribirse_a_comandos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        consumidor = cliente.subscribe('comandos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared, subscription_name='anonimizacion-sub-comandos', schema=AvroSchema(ComandoProcesarAnonimizacion))
+        consumidor = cliente.subscribe('comandos-proceso_anonimizacion', 
+                                      consumer_type=_pulsar.ConsumerType.Shared, 
+                                      subscription_name='anonimizacion-sub-comandos', 
+                                      schema=AvroSchema(ComandoProcesarAnonimizacion))
 
         while True:
             mensaje = consumidor.receive()
@@ -70,8 +76,8 @@ def suscribirse_a_comandos():
             consumidor.acknowledge(mensaje)     
             
         cliente.close()
-    except:
-        logging.error('ERROR: Suscribiendose al tópico de comandos!')
+    except Exception as e:
+        logging.error(f'ERROR: Suscribiendose al tópico de comandos: {str(e)}')
         traceback.print_exc()
         if cliente:
             cliente.close()

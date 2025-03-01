@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from saludtech.servicio_ingestion.seedwork.dominio.entidades import AgregacionRaiz
+from saludtech.servicio_anonimizacion.seedwork.dominio.entidades import AgregacionRaiz
 from pydispatch import dispatcher
-from saludtech.servicio_ingestion.config.db import db
+from saludtech.servicio_anonimizacion.config.db import db
 import pickle
 
 
@@ -79,15 +79,14 @@ def is_flask():
         return False
 
 def registrar_unidad_de_trabajo(serialized_obj):
-    from saludtech.servicio_ingestion.config.uow import UnidadTrabajoSQLAlchemy
+    from saludtech.servicio_anonimizacion.config.uow import UnidadTrabajoSQLAlchemy
     from flask import session
     
-
     session['uow'] = serialized_obj
 
 def flask_uow():
     from flask import session
-    from saludtech.servicio_ingestion.config.uow import UnidadTrabajoSQLAlchemy
+    from saludtech.servicio_anonimizacion.config.uow import UnidadTrabajoSQLAlchemy
     if session.get('uow'):
         return session['uow']
     else:
