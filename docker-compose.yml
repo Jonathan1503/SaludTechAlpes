@@ -1,4 +1,3 @@
-version: '3'
 networks:
   pulsar:
     driver: bridge
@@ -109,7 +108,24 @@ services:
       - PULSAR_ADDRESS=broker
     ports:
       - "5000:5000"
- 
+
+  estandarizacion:
+    container_name: estandarizacion
+    hostname: estandarizacion
+    image: estandarizacion/flask
+    profiles: [ "saludtech" ]
+    networks:
+      - api
+      - pulsar
+    labels:
+      SidecarDiscover: "false"
+
+    environment:
+      - ESTANDARIZACION_ADDRESS=estandarizacion
+      - PULSAR_ADDRESS=broker
+    ports:
+      - "5002:5000"
+
   db:
     image: postgres:15
     profiles: ["pulsar"]
