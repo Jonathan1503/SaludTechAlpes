@@ -1,6 +1,6 @@
 from saludtech.servicio_estandarizacion.seedwork.dominio.repositorios import Mapeador
 from saludtech.servicio_estandarizacion.modulos.estandarizacion.dominio.objetos_valor import ImagenEstandarizada, EstadoEstandarizacion
-from saludtech.servicio_estandarizacion.modulos.estandarizacion.dominio.entidades import ProcesoEstandarizacion, Region
+from saludtech.servicio_estandarizacion.modulos.estandarizacion.dominio.entidades import ProcesoEstandarizacion
 from .dto import ProcesoEstandarizacion as ProcesoEstandarizacionDTO
 from .dto import ImagenEstandarizada as ImagenEstandarizadaDTO
 

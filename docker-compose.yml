@@ -79,7 +79,7 @@ services:
       - managedLedgerDefaultWriteQuorum=1
       - managedLedgerDefaultAckQuorum=1
       - advertisedAddress=broker
-      - advertisedListeners=external:pulsar://127.0.0.1:6650
+      - advertisedListeners=external:pulsar://broker:6650
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -93,36 +93,40 @@ services:
   
   # Servicios de saludtech
   ingestion:
+    build:
+      dockerfile: ./ingestion.Dockerfile
     container_name: ingestion
     hostname: ingestion
-    image: ingestion/flask 
+    #image: ingestion/flask
     profiles: ["saludtech"]
     networks:
       - api
       - pulsar
     labels:
       SidecarDiscover: "false"
-     
     environment:
       - INGESTION_ADDRESS=ingestion
       - PULSAR_ADDRESS=broker
+      - BROKER_HOST=broker
     ports:
       - "5000:5000"
 
   estandarizacion:
+    build:
+      dockerfile: ./estandarizacion.Dockerfile
     container_name: estandarizacion
     hostname: estandarizacion
-    image: estandarizacion/flask
+    #image: estandarizacion/flask
     profiles: [ "saludtech" ]
     networks:
       - api
       - pulsar
     labels:
       SidecarDiscover: "false"
-
     environment:
       - ESTANDARIZACION_ADDRESS=estandarizacion
       - PULSAR_ADDRESS=broker
+      - BROKER_HOST=broker
     ports:
       - "5002:5000"
 
@@ -144,6 +148,24 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
+  db_estandarizacion:
+    image: postgres:15
+    profiles: ["pulsar"]
+    networks:
+      - pulsar
+      - api
+    hostname: db_estandarizacion
+    container_name: postgres-db-est
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: estandarizacion
+    ports:
+      - "5433:5433"
+    volumes:
+      - pg_data_est:/var/lib/postgresql/data
 
 volumes:
   pg_data:
+  pg_data_est:
