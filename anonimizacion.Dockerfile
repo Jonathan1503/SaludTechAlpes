@@ -10,7 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Configura el PYTHONPATH correctamente
-ENV PYTHONPATH="/:/src:${PYTHONPATH}"
 WORKDIR /
 
 CMD [ "python", "-m", "flask", "--app", "src.saludtech.servicio_anonimizacion.api", "run", "--host=0.0.0.0"]
