@@ -80,7 +80,7 @@ services:
       - managedLedgerDefaultWriteQuorum=1
       - managedLedgerDefaultAckQuorum=1
       - advertisedAddress=broker
-      - advertisedListeners=external:pulsar://127.0.0.1:6650
+      - advertisedListeners=external:pulsar://broker:6650
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -107,9 +107,30 @@ services:
     environment:
       - INGESTION_ADDRESS=ingestion
       - PULSAR_ADDRESS=broker
+      - BROKER_HOST=broker
+
     ports:
       - "5000:5000"
- 
+  anonimizacion:
+    container_name: anonimizacion
+    hostname: anonimizacion
+    image: anonimizacion/flask 
+    profiles: ["saludtech"]
+    networks:
+      - api
+      - pulsar
+    labels:
+      SidecarDiscover: "false"
+     
+    environment:
+      - ANONIMIZACION_ADDRESS=anonimizacion
+      - PULSAR_ADDRESS=broker
+      - BROKER_HOST=broker
+
+
+    ports:
+      - "5001:5000"
+      
   db:
     image: postgres:15
     profiles: ["pulsar"]
