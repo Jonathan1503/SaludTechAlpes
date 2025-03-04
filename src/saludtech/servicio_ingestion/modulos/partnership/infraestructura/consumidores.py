@@ -27,6 +27,7 @@ def suscribirse_a_eventos():
             fecha_creacion=str(timecv),fecha_actualizacion= "")
             ejecutar_commando(comando)
             print(f'Evento recibido: {mensaje.value().data}')
+            print("boy")
 
             consumidor.acknowledge(mensaje)     
 

@@ -21,5 +21,5 @@ class ProcesoIngestion(AgregacionRaiz):
         self.imagenes = proceso_ingestion.imagenes
         #self.region = proceso_ingestion.region
 
-        self.agregar_evento(ProcesoIngestionCreado(id_proceso_ingestion=self.id, id_partner=self.id_partner, fecha_creacion=self.fecha_creacion))
+        self.agregar_evento(ProcesoIngestionCreado(id_proceso_ingestion=self.id, id_partner=self.id_partner, fecha_creacion=self.fecha_creacion, imagenes=self.imagenes))
 

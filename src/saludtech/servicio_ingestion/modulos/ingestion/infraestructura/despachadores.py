@@ -26,11 +26,17 @@ class Despachador:
 
     def publicar_evento(self, evento, topico):
         # TODO Debe existir un forma de crear el Payload en Avro con base al tipo del evento
-       
+        imagenes = list()
+
+        for imagen in evento.imagenes:
+            imagenes.append({"tipo": imagen.tipo, "archivo": imagen.archivo})
+            
         payload = ProcesoIngestionCreadoPayload(
             id_proceso_ingestion=str(evento.id_proceso_ingestion), 
             id_partner=str(evento.id_partner), 
-            fecha_creacion=int(datetime.strptime(evento.fecha_creacion, '%Y-%m-%d').timestamp() * 1000)
+            fecha_creacion=int(datetime.strptime(evento.fecha_creacion, '%Y-%m-%d').timestamp() * 1000),
+            imagenes= str(imagenes)
+            
         )
         print("evento_publicado")
         evento_integracion = EventoProcesoIngestionCreado(data=payload)
