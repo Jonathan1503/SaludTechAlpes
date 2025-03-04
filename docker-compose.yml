@@ -3,8 +3,9 @@ networks:
     driver: bridge
   api:
     driver: bridge
+
 services:
-# Start zookeeper
+  # Apache Pulsar Services
   zookeeper:
     image: apachepulsar/pulsar:latest
     profiles: ["pulsar"]
@@ -26,7 +27,6 @@ services:
       timeout: 5s
       retries: 30
 
-# Init cluster metadata
   pulsar-init:
     container_name: pulsar-init
     hostname: pulsar-init
@@ -39,7 +39,6 @@ services:
       zookeeper:
         condition: service_healthy
 
-# Start bookie
   bookie:
     image: apachepulsar/pulsar:latest
     profiles: ["pulsar"]
@@ -56,13 +55,10 @@ services:
         condition: service_healthy
       pulsar-init:
         condition: service_completed_successfully
-  # Map the local directory to the container to avoid bookie startup failure due to insufficient container disks.
     volumes:
       - ./data/bookkeeper:/pulsar/data/bookkeeper
-    command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf
-      && exec bin/pulsar bookie"
+    command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf && exec bin/pulsar bookie"
 
-# Start broker
   broker:
     image: apachepulsar/pulsar:latest
     profiles: ["pulsar"]
@@ -88,16 +84,33 @@ services:
     ports:
       - "6650:6650"
       - "8080:8080"
-    command: bash -c "bin/apply-config-from-env.py conf/broker.conf
-      &&  exec bin/pulsar broker"
-  
-  # Servicios de saludtech
+    command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    profiles: ["pulsar", "saludtech"]
+    networks:
+      - pulsar
+      - api
+    hostname: db
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  # SaludTech Services
   ingestion:
     build:
       dockerfile: ./ingestion.Dockerfile
     container_name: ingestion
     hostname: ingestion
-    #image: ingestion/flask
     profiles: ["saludtech"]
     networks:
       - api
@@ -130,23 +143,23 @@ services:
     ports:
       - "5002:5000"
 
-  db:
-    image: postgres:15
-    profiles: ["pulsar"]
+  anonimizacion:
+    container_name: anonimizacion
+    hostname: anonimizacion
+    image: anonimizacion/flask
+    profiles: ["saludtech"]
     networks:
-      - pulsar
       - api
-    hostname: db
-    container_name: postgres-db
-    restart: always
+      - pulsar
+    labels:
+      SidecarDiscover: "false"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ingestion
+      - ANONIMIZACION_ADDRESS=anonimizacion
+      - PULSAR_ADDRESS=broker
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db:5432/anonimizacion
+      - BROKER_HOST=broker
     ports:
-      - "5432:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
+      - "5001:5000"
 
   db_estandarizacion:
     image: postgres:15

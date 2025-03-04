@@ -5,6 +5,7 @@ class ProcesoIngestionCreadoPayload(Record):
     id_proceso_ingestion = String()
     id_partner = String()
     fecha_creacion = Long()
+    imagenes= String()
 
 class EventoProcesoIngestionCreado(EventoIntegracion):
     data = ProcesoIngestionCreadoPayload()

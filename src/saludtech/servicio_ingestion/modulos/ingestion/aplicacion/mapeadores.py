@@ -15,9 +15,11 @@ class MapeadorProcesoIngestionDTOJson(AppMap):
         proceso_ingestion_dto.id =externo.get('id')
         proceso_ingestion_dto.fecha_creacion =str(date.today())
         imagenes: list[ImagenDTO] = list()
+      
         for imagen in externo.get('imagenes', list()):
             imagen_dto: ImagenDTO = ImagenDTO(imagen.get('tipo'),imagen.get('archivo'))
             proceso_ingestion_dto.imagenes.append(imagen_dto)
+        
 
         return proceso_ingestion_dto
     def dto_a_externo(self, dto: ProcesoIngestionDTO) -> dict:
