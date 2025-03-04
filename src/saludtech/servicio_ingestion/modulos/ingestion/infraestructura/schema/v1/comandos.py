@@ -7,7 +7,7 @@ class ComandoCrearProcesoIngestionPayload(Record):
     fecha_creacion= String()
     fecha_actualizacion= String()
     id_proceso_ingestion= String()
-    imagenes= list()
+    imagenes= String()
     
 
 class ComandoCrearProcesoIngestion(ComandoIntegracion):

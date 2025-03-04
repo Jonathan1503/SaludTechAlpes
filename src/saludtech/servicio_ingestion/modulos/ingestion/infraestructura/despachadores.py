@@ -41,15 +41,18 @@ class Despachador:
         imagenes= list()
         for imagen in comando.imagenes:
                 imagenes.append({"tipo": imagen.tipo, "archivo": imagen.archivo})
+        print("cccccc")
+        print(imagenes)
+        print("cccc")
         payload = ComandoCrearProcesoIngestionPayload(
             id_partner=str(comando.id_partner),
             fecha_creacion= str(comando.fecha_creacion),
             fecha_actualizacion= str(comando.fecha_actualizacion),
             id_proceso_ingestion= str(comando.id),
-            imagenes= imagenes
+            imagenes= str(imagenes)
             
         )
-       
+        print(payload.imagenes)
         comando_integracion = ComandoCrearProcesoIngestion(data=payload)
         
    

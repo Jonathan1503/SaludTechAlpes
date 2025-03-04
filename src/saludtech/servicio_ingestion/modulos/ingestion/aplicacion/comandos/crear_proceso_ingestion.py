@@ -28,6 +28,7 @@ class CrearProcesoIngestionHandler (CrearProcesoIngestionBaseHandler):
             ,   id=comando.id
             ,   imagenes=comando.imagenes,
             id_partner=comando.id_partner)
+        print(comando.imagenes)
 
         proceso_ingestion: ProcesoIngestion = self.fabrica_ingestion.crear_objeto(proceso_ingestion_dto, MapeadorProcesoIngestion())
         proceso_ingestion.crear_proceso_ingestion(proceso_ingestion)
