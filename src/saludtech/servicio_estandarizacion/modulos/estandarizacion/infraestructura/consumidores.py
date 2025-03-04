@@ -42,8 +42,8 @@ def suscribirse_a_comandos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        consumidor = cliente.subscribe('comandos-proceso_estandarizacion', consumer_type=_pulsar.ConsumerType.Shared,
-                                       subscription_name='estandarizacion-sub-comandos',
+        consumidor = cliente.subscribe('comandos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared,
+                                       subscription_name='anonimizacion-sub-comandos',
                                        schema=AvroSchema(ComandoProcesarEstandarizacion))
 
         while True:

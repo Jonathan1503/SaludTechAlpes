@@ -35,7 +35,7 @@ def proceso_estandarizacion_asincronica():
         hp2 = Process(target=estandarizacion.suscribirse_a_comandos, daemon=True).start()
 
         despachador = Despachador()
-        despachador.publicar_comando(comando, 'comandos-proceso_estandarizacion')
+        despachador.publicar_comando(comando, 'comandos-proceso_anonimizacion')
 
         return Response('{}', status=202, mimetype='application/json')
     except ExcepcionDominio as e:

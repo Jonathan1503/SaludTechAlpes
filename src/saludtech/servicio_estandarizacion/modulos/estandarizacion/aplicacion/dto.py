@@ -5,6 +5,7 @@ from saludtech.servicio_estandarizacion.seedwork.aplicacion.dto import DTO
 class ImagenEstandarizadaDTO(DTO):
     tipo: str
     archivo: str
+    archivo_estandarizado: bool
 
 @dataclass()
 class ProcesoEstandarizacionDTO(DTO):
