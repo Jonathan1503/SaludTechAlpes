@@ -20,10 +20,7 @@ def obtener_procesos_ingestion(root) -> typing.List["ProcesoIngestion"]:
                 fecha_creacion=proceso.get("fecha_creacion", ""),
                 fecha_actualizacion=proceso.get("fecha_actualizacion", ""),
                 id=proceso.get("id", ""),
-                imagenes=[
-                    Imagen(tipo=img.get("tipo", ""), archivo=img.get("archivo", ""))
-                    for img in proceso.get("imagenes", [])
-                ],
+                imagenes= proceso.get("imagenes", ""),
                 id_partner=proceso.get("id_partner", "")
             )
         )
@@ -31,16 +28,11 @@ def obtener_procesos_ingestion(root) -> typing.List["ProcesoIngestion"]:
     return procesos_ingestion
 
 @strawberry.type
-class Imagen:
-    tipo: str
-    archivo: str
-
-@strawberry.type
 class ProcesoIngestion:
     fecha_creacion: str 
     fecha_actualizacion: str 
     id: str
-    imagenes: typing.List[Imagen]
+    imagenes: str
     id_partner: str 
 
 @strawberry.type
