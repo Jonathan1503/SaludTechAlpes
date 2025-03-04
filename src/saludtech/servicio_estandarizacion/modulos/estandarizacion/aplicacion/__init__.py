@@ -1,0 +1,8 @@
+from pydispatch import dispatcher
+
+from .handlers import HandlerProcesoEstandarizacionIntegracion
+
+from saludtech.servicio_estandarizacion.modulos.estandarizacion.dominio.eventos import ProcesoEstandarizacionCreado, ProcesoEstandarizacionCompletado
+
+dispatcher.connect(HandlerProcesoEstandarizacionIntegracion.handle_proceso_estandarizacion_creado, signal=f'{ProcesoEstandarizacionCreado.__name__}Integracion')
+dispatcher.connect(HandlerProcesoEstandarizacionIntegracion.handle_proceso_estandarizacion_completado, signal=f'{ProcesoEstandarizacionCompletado.__name__}Integracion')
