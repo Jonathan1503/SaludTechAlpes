@@ -5,7 +5,7 @@ from saludtech.servicio_anonimizacion.seedwork.dominio.repositorios import Mapea
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.dominio.objetos_valor import ImagenAnonimizada
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.dominio.entidades import ProcesoAnonimizacion
 from datetime import date
-
+import uuid
 class MapeadorProcesoAnonimizacionDTOJson(AppMap):
     def externo_a_dto(self, externo: dict) -> ProcesoAnonimizacionDTO:
         proceso_anonimizacion_dto = ProcesoAnonimizacionDTO()

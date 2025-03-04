@@ -32,9 +32,12 @@ def create_app(configuracion={}):
     # Init la aplicacion de Flask
     app = Flask(__name__, instance_relative_config=True)
     
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postgres@localhost:5432/anonimizacion"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        'SQLALCHEMY_DATABASE_URI', 
+        "postgresql://postgres:postgres@5432/anonimizacion"
+    )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+    print('test')
     app.secret_key = 'abc'
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['TESTING'] = configuracion.get('TESTING')

@@ -1,11 +1,12 @@
-version: '3'
+# Remove the version field as it's not needed for modern Docker Compose
 networks:
   pulsar:
     driver: bridge
   api:
     driver: bridge
+
 services:
-# Start zookeeper
+  # Apache Pulsar Services
   zookeeper:
     image: apachepulsar/pulsar:latest
     profiles: ["pulsar"]
@@ -27,7 +28,6 @@ services:
       timeout: 5s
       retries: 30
 
-# Init cluster metadata
   pulsar-init:
     container_name: pulsar-init
     hostname: pulsar-init
@@ -40,7 +40,6 @@ services:
       zookeeper:
         condition: service_healthy
 
-# Start bookie
   bookie:
     image: apachepulsar/pulsar:latest
     profiles: ["pulsar"]
@@ -57,13 +56,10 @@ services:
         condition: service_healthy
       pulsar-init:
         condition: service_completed_successfully
-  # Map the local directory to the container to avoid bookie startup failure due to insufficient container disks.
     volumes:
       - ./data/bookkeeper:/pulsar/data/bookkeeper
-    command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf
-      && exec bin/pulsar bookie"
+    command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf && exec bin/pulsar bookie"
 
-# Start broker
   broker:
     image: apachepulsar/pulsar:latest
     profiles: ["pulsar"]
@@ -80,7 +76,7 @@ services:
       - managedLedgerDefaultWriteQuorum=1
       - managedLedgerDefaultAckQuorum=1
       - advertisedAddress=broker
-      - advertisedListeners=external:pulsar://127.0.0.1:6650
+      - advertisedListeners=external:pulsar://broker:6650
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -89,30 +85,12 @@ services:
     ports:
       - "6650:6650"
       - "8080:8080"
-    command: bash -c "bin/apply-config-from-env.py conf/broker.conf
-      &&  exec bin/pulsar broker"
-  
-  # Servicios de saludtech
-  ingestion:
-    container_name: ingestion
-    hostname: ingestion
-    image: ingestion/flask 
-    profiles: ["saludtech"]
-    networks:
-      - api
-      - pulsar
-    labels:
-      SidecarDiscover: "false"
-     
-    environment:
-      - INGESTION_ADDRESS=ingestion
-      - PULSAR_ADDRESS=broker
-    ports:
-      - "5000:5000"
- 
+    command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
+
+  # PostgreSQL Database
   db:
     image: postgres:15
-    profiles: ["pulsar"]
+    profiles: ["pulsar", "saludtech"]
     networks:
       - pulsar
       - api
@@ -122,12 +100,53 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ingestion
     ports:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
+  # SaludTech Services
+  ingestion:
+    container_name: ingestion
+    hostname: ingestion
+    image: ingestion/flask
+    profiles: ["saludtech"]
+    networks:
+      - api
+      - pulsar
+    labels:
+      SidecarDiscover: "false"
+    environment:
+      - INGESTION_ADDRESS=ingestion
+      - PULSAR_ADDRESS=broker
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db:5432/ingestion
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_started
+      broker:
+        condition: service_started
+
+  anonimizacion:
+    container_name: anonimizacion
+    hostname: anonimizacion
+    image: anonimizacion/flask
+    profiles: ["saludtech"]
+    networks:
+      - api
+      - pulsar
+    labels:
+      SidecarDiscover: "false"
+    environment:
+      - ANONIMIZACION_ADDRESS=anonimizacion
+      - PULSAR_ADDRESS=broker
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db:5432/anonimizacion
+      - BROKER_HOST=broker
+
+    ports:
+      - "5001:5000"
 
 volumes:
   pg_data:
