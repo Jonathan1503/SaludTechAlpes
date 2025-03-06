@@ -20,6 +20,8 @@ class AnonimizarProceso(Comando):
 
 class AnonimizarProcesoHandler(AnonimizarProcesoBaseHandler):
     def handle(self, comando: AnonimizarProceso):
+        from saludtech.servicio_anonimizacion.config.db import db
+        
         proceso_anonimizacion_dto = ProcesoAnonimizacionDTO(
             fecha_actualizacion=comando.fecha_actualizacion,
             fecha_creacion=comando.fecha_creacion,
@@ -33,18 +35,20 @@ class AnonimizarProcesoHandler(AnonimizarProcesoBaseHandler):
             MapeadorProcesoAnonimizacion()
         )
         
-        # Realizar la anonimización de los datos
+        # Perform anonymization
         proceso_anonimizacion.anonimizar_proceso()
 
+        # Direct database operations instead of UoW
         repositorio = self.fabrica_repositorio.crear_objeto(RepositorioProcesoAnonimizacion.__class__)
         try:
-            UnidadTrabajoPuerto.registrar_batch(repositorio.agregar, proceso_anonimizacion)
-            UnidadTrabajoPuerto.savepoint()
-            UnidadTrabajoPuerto.commit()
+            # Direct repository call
+            repositorio.agregar(proceso_anonimizacion)
+            # Direct session commit
+            db.session.commit()
         except Exception:
             print(traceback.format_exc())
-            UnidadTrabajoPuerto.rollback()
-
+            db.session.rollback()
+            
 @comando.register(AnonimizarProceso)
 def ejecutar_comando_anonimizar_proceso(comando: AnonimizarProceso):
     handler = AnonimizarProcesoHandler()

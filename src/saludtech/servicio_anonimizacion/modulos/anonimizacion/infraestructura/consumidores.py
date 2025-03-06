@@ -77,13 +77,16 @@ def suscribirse_a_comandos():
             schema=AvroSchema(ComandoAnonimizarProceso)
         )
 
+        from saludtech.servicio_anonimizacion.api import create_app
+        app = create_app({'TESTING': False})
+
         while True:
             mensaje = consumidor.receive()
             comando_data = mensaje.value().data
             
             print(f'Comando recibido: {comando_data}')
             
-            # Convertir datos de comando a DTO de imágenes
+            # Convert command data to DTO
             imagenes = []
             for img_data in comando_data.imagenes:
                 imagen_dto = ImagenAnonimizadaDTO(
@@ -93,7 +96,7 @@ def suscribirse_a_comandos():
                 )
                 imagenes.append(imagen_dto)
             
-            # Crear y ejecutar el comando
+            # Create the command
             comando = AnonimizarProceso(
                 fecha_creacion=comando_data.fecha_creacion,
                 fecha_actualizacion=comando_data.fecha_actualizacion,
@@ -102,7 +105,9 @@ def suscribirse_a_comandos():
                 id_proceso_original=comando_data.id_proceso_original
             )
             
-            ejecutar_commando(comando)
+            # Execute the command within a Flask app context
+            with app.app_context():
+                ejecutar_commando(comando)
             
             print("Comando de anonimización ejecutado")
             consumidor.acknowledge(mensaje)
