@@ -118,7 +118,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: anonimizacion
     ports:
-     - "5434:5432"
+     - "5434:5434"
     volumes:
     - pg_data_anon:/var/lib/postgresql/data
     - ./init-db-anonimizacion.sql:/docker-entrypoint-initdb.d/init-db-anonimizacion.sql
@@ -162,6 +162,8 @@ services:
       - "5002:5000"
 
   anonimizacion:
+    build:
+      dockerfile: ./anonimizacion.Dockerfile
     container_name: anonimizacion
     hostname: anonimizacion
     image: anonimizacion/flask

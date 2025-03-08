@@ -2,7 +2,7 @@ import pulsar
 from pulsar.schema import *
 
 from saludtech.servicio_estandarizacion.modulos.estandarizacion.infraestructura.schema.v1.eventos import EventoProcesoEstandarizacionCreado, ProcesoEstandarizacionCreadoPayload, EventoProcesoEstandarizacionCompletado, ProcesoEstandarizacionCompletadoPayload
-from saludtech.servicio_estandarizacion.modulos.estandarizacion.infraestructura.schema.v1.comandos import ComandoProcesarEstandarizacion, ComandoProcesarEstandarizacionPayload
+from saludtech.servicio_estandarizacion.modulos.estandarizacion.infraestructura.schema.v1.comandos import ComandoProcesarEstandarizacion, ComandoProcesarEstandarizacionPayload, Imagen
 from saludtech.servicio_estandarizacion.seedwork.infraestructura import utils
 
 from datetime import datetime
@@ -41,9 +41,9 @@ class Despachador:
             self._publicar_mensaje(evento_integracion, topico, AvroSchema(EventoProcesoEstandarizacionCompletado))
 
     def publicar_comando(self, comando, topico):
-        imagenes= list()
+        imagenes= []
         for imagen in comando.imagenes:
-                imagenes.append({"tipo": imagen.tipo, "archivo": imagen.archivo, "archivo_estandarizado": imagen.archivo_estandarizado})
+                imagenes.append({"tipo": str(imagen.tipo), "archivo": str(imagen.archivo), "archivo_estandarizado": bool(imagen.archivo_estandarizado)})
 
         payload = ComandoProcesarEstandarizacionPayload(
             id_proceso_ingestion=str(comando.id_proceso_ingestion),

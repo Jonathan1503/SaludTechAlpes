@@ -13,7 +13,7 @@ proceso_estandarizacion_imagen = db.Table(
     db.Column("proceso_estandarizacion_id", db.String, db.ForeignKey("proceso_estandarizacion.id")),
     db.Column("tipo", db.String),
     db.Column("archivo", db.String),
-    db.Column("archivo_estandarizado", db.String),
+    db.Column("archivo_estandarizado", db.Boolean),
     db.ForeignKeyConstraint(
         ["tipo", "archivo", "archivo_estandarizado"],
         ["imagen_estandarizada.tipo", "imagen_estandarizada.archivo", "imagen_estandarizada.archivo_estandarizado"],
@@ -24,7 +24,7 @@ class ImagenEstandarizada(db.Model):
     __tablename__ = "imagen_estandarizada"
     tipo = db.Column(db.String, nullable=False, primary_key=True)
     archivo = db.Column(db.String, nullable=False, primary_key=True)
-    archivo_estandarizado = db.Column(db.String, nullable=True, primary_key=True)
+    archivo_estandarizado = db.Column(db.Boolean, nullable=True, primary_key=True)
 
 
 class ProcesoEstandarizacion(db.Model):

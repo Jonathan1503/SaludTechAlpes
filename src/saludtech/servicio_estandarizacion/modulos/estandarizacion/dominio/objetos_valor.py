@@ -15,4 +15,4 @@ class EstadoEstandarizacion(ObjetoValor):
 class ImagenEstandarizada(ObjetoValor):
     tipo: str
     archivo: str
-    archivo_estandarizado: str = None
+    archivo_estandarizado: bool = False

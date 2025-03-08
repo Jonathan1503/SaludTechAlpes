@@ -17,7 +17,7 @@ class MapeadorProcesoEstandarizacionDTOJson(AppMap):
         proceso_estandarizacion_dto.estado = externo.get('estado', 'PENDIENTE')
         imagenes: list[ImagenEstandarizadaDTO] = list()
 
-        for imagen in externo.get('imagenes', list()):
+        for imagen in externo.get('imagenes'):
             imagen_dto: ImagenEstandarizadaDTO = ImagenEstandarizadaDTO(
                 imagen.get('tipo'),
                 imagen.get('archivo'),
