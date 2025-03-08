@@ -34,7 +34,7 @@ def create_app(configuracion={}):
     
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
         'SQLALCHEMY_DATABASE_URI', 
-        "postgresql://postgres:postgres@5432/anonimizacion"
+        "postgresql://postgres:postgres@db_anonimizacion:5432/anonimizacion"
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     print('test')

@@ -104,6 +104,23 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+  db_anonimizacion:
+    image: postgres:15
+    profiles: ["pulsar", "saludtech"]
+    networks:
+    - pulsar
+    - api
+    hostname: db_anonimizacion
+    container_name: postgres-db-anom
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: anonimizacion
+    ports:
+     - "5434:5432"
+    volumes:
+    - pg_data_anon:/var/lib/postgresql/data
 
   # SaludTech Services
   ingestion:
@@ -182,3 +199,4 @@ services:
 volumes:
   pg_data:
   pg_data_est:
+  pg_data_anon:
