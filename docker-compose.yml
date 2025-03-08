@@ -103,7 +103,7 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./init-db-ingestion.sql:/docker-entrypoint-initdb.d/init-db-ingestion.sql
   db_anonimizacion:
     image: postgres:15
     profiles: ["pulsar", "saludtech"]
@@ -121,6 +121,7 @@ services:
      - "5434:5432"
     volumes:
     - pg_data_anon:/var/lib/postgresql/data
+    - ./init-db-anonimizacion.sql:/docker-entrypoint-initdb.d/init-db-anonimizacion.sql
 
   # SaludTech Services
   ingestion:
@@ -195,6 +196,7 @@ services:
       - "5433:5433"
     volumes:
       - pg_data_est:/var/lib/postgresql/data
+      - ./init-db-estandarizacion.sql:/docker-entrypoint-initdb.d/init-db-estandarizacion.sql
 
 volumes:
   pg_data:

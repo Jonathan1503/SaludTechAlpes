@@ -20,13 +20,14 @@ def suscribirse_a_eventos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        
+        json_schema = utils.consultar_schema_registry("eventos-proceso_ingestion")  
+        avro_schema = utils.obtener_schema_avro_de_diccionario(json_schema)
         # Suscribirse a eventos del servicio de ingestion
         consumidor = cliente.subscribe(
             'eventos-proceso_ingestion', 
             consumer_type=_pulsar.ConsumerType.Shared,
             subscription_name='anonimizacion-sub-eventos',
-            schema=AvroSchema(EventoProcesoIngestionCreado)
+            schema=avro_schema
         )
 
         while True:
