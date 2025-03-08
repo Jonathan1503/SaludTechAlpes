@@ -55,9 +55,9 @@ def suscribirse_a_comandos():
             imagenes = []
             for img in mc.imagenes:
                 imagen_dto = ImagenEstandarizadaDTO(
-                    tipo=img.get('tipo'),
-                    archivo=img.get('archivo'),
-                    archivo_estandarizado=img.get('archivo_estandarizado')
+                    tipo=img.tipo,
+                    archivo=img.archivo,
+                    archivo_estandarizado=img.archivo_estandarizado
                 )
                 imagenes.append(imagen_dto)
 

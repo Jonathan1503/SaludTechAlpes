@@ -41,9 +41,9 @@ class Despachador:
             self._publicar_mensaje(evento_integracion, topico, AvroSchema(EventoProcesoEstandarizacionCompletado))
 
     def publicar_comando(self, comando, topico):
-        imagenes= list()
+        imagenes= []
         for imagen in comando.imagenes:
-                imagenes.append({"tipo": imagen.tipo, "archivo": imagen.archivo, "archivo_estandarizado": imagen.archivo_estandarizado})
+                imagenes.append({"tipo": str(imagen.tipo), "archivo": str(imagen.archivo), "archivo_estandarizado": bool(imagen.archivo_estandarizado)})
 
         payload = ComandoProcesarEstandarizacionPayload(
             id_proceso_ingestion=str(comando.id_proceso_ingestion),
@@ -55,5 +55,4 @@ class Despachador:
         )
        
         comando_integracion = ComandoProcesarEstandarizacion(data=payload)
-
         self._publicar_mensaje(comando_integracion, topico, AvroSchema(ComandoProcesarEstandarizacion))

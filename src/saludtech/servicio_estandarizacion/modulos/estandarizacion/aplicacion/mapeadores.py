@@ -14,10 +14,11 @@ class MapeadorProcesoEstandarizacionDTOJson(AppMap):
         proceso_estandarizacion_dto.id_proceso_ingestion = externo.get('id_proceso_ingestion')
         proceso_estandarizacion_dto.id = externo.get('id')
         proceso_estandarizacion_dto.fecha_creacion = str(date.today())
+        proceso_estandarizacion_dto.fecha_actualizacion = str(date.today())
         proceso_estandarizacion_dto.estado = externo.get('estado', 'PENDIENTE')
         imagenes: list[ImagenEstandarizadaDTO] = list()
 
-        for imagen in externo.get('imagenes', list()):
+        for imagen in externo.get('imagenes'):
             imagen_dto: ImagenEstandarizadaDTO = ImagenEstandarizadaDTO(
                 imagen.get('tipo'),
                 imagen.get('archivo'),
@@ -47,10 +48,11 @@ class MapeadorProcesoEstandarizacion(RepMap):
         imagenes_dto = list()
 
         for imagen in entidad.imagenes:
-            imagen_dto = ImagenEstandarizadaDTO()
-            imagen_dto.tipo = imagen.tipo
-            imagen_dto.archivo = imagen.archivo
-            imagen_dto.archivo_estandarizado = imagen.archivo_estandarizado
+            imagen_dto = ImagenEstandarizadaDTO(
+                tipo=imagen.tipo,
+                archivo=imagen.archivo,
+                archivo_estandarizado=imagen.archivo_estandarizado
+            )
             imagenes_dto.append(imagen_dto)
 
         proceso_estandarizacion_dto.imagenes = imagenes_dto
