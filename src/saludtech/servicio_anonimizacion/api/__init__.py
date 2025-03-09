@@ -21,7 +21,7 @@ def create_app(configuracion={}):
     
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
         'SQLALCHEMY_DATABASE_URI', 
-        "postgresql://postgres:password@postgres-db-anom:5434/anonimizacion"
+        "postgresql://postgres:password@postgres-db-anom:5432/anonimizacion"
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_POOL_SIZE'] = 1
