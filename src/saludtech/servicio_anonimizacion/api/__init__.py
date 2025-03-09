@@ -23,26 +23,24 @@ def comenzar_consumidor():
     import saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.consumidores as anonimizacion
 
     # Suscripción a eventos
-    threading.Thread(target=anonimizacion.suscribirse_a_eventos).start()
+    #threading.Thread(target=anonimizacion.suscribirse_a_eventos).start()
 
     # Suscripción a comandos
-    threading.Thread(target=anonimizacion.suscribirse_a_comandos).start()
+    #threading.Thread(target=anonimizacion.suscribirse_a_comandos).start()
 
 def create_app(configuracion={}):
     # Init la aplicacion de Flask
     app = Flask(__name__, instance_relative_config=True)
     
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        'SQLALCHEMY_DATABASE_URI', 
-        "postgresql://postgres:postgres@db_anonimizacion:5432/anonimizacion"
-    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI", "postgresql://postgres:postgres@db_anonimizacion:5432/anonimizacion")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    print('test')
+
     app.secret_key = 'abc'
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['TESTING'] = configuracion.get('TESTING')
     
-    # Inicializa la DB
+
+     # Inicializa la DB
     from saludtech.servicio_anonimizacion.config.db import init_db
     init_db(app)
     
@@ -55,7 +53,7 @@ def create_app(configuracion={}):
         if not app.config.get('TESTING'):
             comenzar_consumidor()
 
-    # Importa Blueprints
+     # Importa Blueprints
     from . import anonimizacion
 
     # Registro de Blueprints
@@ -65,7 +63,7 @@ def create_app(configuracion={}):
     def spec():
         swag = swagger(app)
         swag['info']['version'] = "1.0"
-        swag['info']['title'] = "Anonimización API"
+        swag['info']['title'] = "My API"
         return jsonify(swag)
 
     @app.route("/health")

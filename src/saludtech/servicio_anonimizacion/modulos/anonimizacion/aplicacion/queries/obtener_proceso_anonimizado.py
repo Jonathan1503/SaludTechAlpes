@@ -7,19 +7,17 @@ from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.mapeadore
 import uuid
 
 @dataclass
-class ObtenerProcesoAnonimizado(Query):
+class ObtenerProcesoAnonimizacion(Query):
     id: str
 
-class ObtenerProcesoAnonimizadoHandler(ProcesoAnonimizacionQueryBaseHandler):
-    def handle(self, query: ObtenerProcesoAnonimizado) -> QueryResultado:
+class ObtenerProcesoAnonimizacionHandler(ProcesoAnonimizacionQueryBaseHandler):
+
+    def handle(self, query: ObtenerProcesoAnonimizacion) -> QueryResultado:
         repositorio = self.fabrica_repositorio.crear_objeto(RepositorioProcesoAnonimizacion.__class__)
-        proceso_anonimizacion = self.fabrica_anonimizacion.crear_objeto(
-            repositorio.obtener_por_id(query.id), 
-            MapeadorProcesoAnonimizacion()
-        )
+        proceso_anonimizacion = self.fabrica_anonimizacion.crear_objeto(repositorio.obtener_por_id(query.id), MapeadorProcesoAnonimizacion())
         return QueryResultado(resultado=proceso_anonimizacion)
 
-@query.register(ObtenerProcesoAnonimizado)
-def ejecutar_query_obtener_proceso_anonimizado(query: ObtenerProcesoAnonimizado):
-    handler = ObtenerProcesoAnonimizadoHandler()
+@query.register(ObtenerProcesoAnonimizacion)
+def ejecutar_query_Obtener_proceso_anonimizacion(query: ObtenerProcesoAnonimizacion):
+    handler = ObtenerProcesoAnonimizacionHandler()
     return handler.handle(query)

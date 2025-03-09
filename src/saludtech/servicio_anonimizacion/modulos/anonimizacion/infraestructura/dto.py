@@ -6,30 +6,30 @@ import uuid
 
 Base = db.declarative_base()
 
-# Tabla intermedia para la relación entre procesos de anonimización e imágenes
-proceso_anonimizacion_imagen = db.Table(
-    "proceso_anonimizacion_imagen",
+# Tabla intermedia para tener la relación de muchos a muchos entre proceso de anonimización y datos
+proceso_anonimizacion_dato = db.Table(
+    "proceso_anonimizacion_dato",
     db.Model.metadata,
     db.Column("proceso_anonimizacion_id", db.String, db.ForeignKey("proceso_anonimizacion.id")),
     db.Column("tipo", db.String),
-    db.Column("archivo", db.String),
-    db.Column("archivo_original", db.String),
+    db.Column("contenido", db.String),
+    db.Column("anonimizado", db.Boolean),
     db.ForeignKeyConstraint(
-        ["tipo", "archivo", "archivo_original"],
-        ["imagen_anonimizada.tipo", "imagen_anonimizada.archivo", "imagen_anonimizada.archivo_original"]
+        ["tipo", "contenido", "anonimizado"],
+        ["dato.tipo", "dato.contenido", "dato.anonimizado"]
     )
 )
 
-class ImagenAnonimizada(db.Model):
-    __tablename__ = "imagen_anonimizada"
+class Dato(db.Model):
+    __tablename__ = "dato"
     tipo = db.Column(db.String, nullable=False, primary_key=True)
-    archivo = db.Column(db.String, nullable=False, primary_key=True)
-    archivo_original = db.Column(db.String, nullable=False, primary_key=True)
+    contenido = db.Column(db.String, nullable=False, primary_key=True)
+    anonimizado = db.Column(db.Boolean, nullable=False, primary_key=True, default=False)
 
 class ProcesoAnonimizacion(db.Model):
     __tablename__ = "proceso_anonimizacion"
     id = db.Column(db.String, primary_key=True)
     fecha_creacion = db.Column(db.String, nullable=False)
     fecha_actualizacion = db.Column(db.String, nullable=False)
-    id_proceso_original = db.Column(db.String, nullable=False)
-    imagenes = db.relationship('ImagenAnonimizada', secondary=proceso_anonimizacion_imagen, backref='proceso_anonimizacion')
+    id_partner = db.Column(db.String, nullable=False)
+    datos = db.relationship('Dato', secondary=proceso_anonimizacion_dato, backref='proceso_anonimizacion')

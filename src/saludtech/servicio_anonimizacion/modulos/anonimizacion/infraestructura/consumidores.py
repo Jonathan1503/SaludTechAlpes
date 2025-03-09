@@ -1,68 +1,57 @@
-import pulsar, _pulsar
+import pulsar, _pulsar  
 from pulsar.schema import *
 import uuid
 import time
 import logging
 import traceback
+import ast
 from datetime import datetime
-
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.schema.v1.eventos import EventoProcesoAnonimizacionCreado
-from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.schema.v1.comandos import ComandoAnonimizarProceso
+from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.schema.v1.comandos import ComandoCrearProcesoAnonimizacion
 from saludtech.servicio_anonimizacion.seedwork.infraestructura import utils
 from saludtech.servicio_anonimizacion.seedwork.aplicacion.comandos import ejecutar_commando
-from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.comandos.anonimizar_proceso import AnonimizarProceso
-from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.dto import ImagenAnonimizadaDTO
-
-# Importar el evento de ingestion para escucharlo
-from saludtech.servicio_ingestion.modulos.ingestion.infraestructura.schema.v1.eventos import EventoProcesoIngestionCreado
+from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.comandos.crear_proceso_anonimizacion import CrearProcesoAnonimizacion
+from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.dto import DatoDTO
+from saludtech.servicio_anonimizacion.modulos.ingestion.infraestructura.schema.v1.eventos import EventoProcesoIngestionCreado
 
 def suscribirse_a_eventos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        json_schema = utils.consultar_schema_registry("eventos-proceso_ingestion")  
-        avro_schema = utils.obtener_schema_avro_de_diccionario(json_schema)
-        # Suscribirse a eventos del servicio de ingestion
-        consumidor = cliente.subscribe(
-            'eventos-proceso_ingestion', 
-            consumer_type=_pulsar.ConsumerType.Shared,
-            subscription_name='anonimizacion-sub-eventos',
-            schema=avro_schema
-        )
+        # Suscribirse a eventos de ingestion para procesarlos
+        consumidor = cliente.subscribe('eventos-proceso_ingestion', consumer_type=_pulsar.ConsumerType.Shared, subscription_name='anonimizacion-sub-eventos', schema=AvroSchema(EventoProcesoIngestionCreado))
 
         while True:
             mensaje = consumidor.receive()
-            evento_data = mensaje.value().data
+            print(f'Evento de ingestion recibido: {mensaje.value().data}')
             
-            print(f'Evento de ingestion recibido para anonimizar: {evento_data}')
+            # Procesar el evento de ingestion para crear un comando de anonimizacion
+            mc = mensaje.value().data
+            imagenes = ast.literal_eval(mc.imagenes)
+            datos: list[DatoDTO] = list()
             
-            # Obtener datos del evento de ingestion para iniciar el proceso de anonimización
-            fecha_creacion = datetime.fromtimestamp(evento_data.fecha_creacion / 1000.0).strftime('%Y-%m-%d')
-            id_proceso = str(uuid.uuid4())
-            
-            # Aquí deberíamos obtener las imágenes del proceso original
-            # Para simplificar, asumimos un proceso de obtención de imágenes
-            imagenes = [
-                ImagenAnonimizadaDTO(tipo="imagen", archivo="anonimizado_imagen.jpg", archivo_original="original.jpg")
-            ]
+            # Convertir las imágenes a datos para anonimización
+            for imagen in imagenes:
+                dato_dto = DatoDTO(tipo="imagen", contenido=imagen.get('archivo'), anonimizado=False)
+                datos.append(dato_dto)
             
             # Crear y ejecutar el comando de anonimización
-            comando = AnonimizarProceso(
-                fecha_creacion=fecha_creacion,
-                fecha_actualizacion=fecha_creacion,
-                id=id_proceso,
-                imagenes=imagenes,
-                id_proceso_original=evento_data.id_proceso_ingestion
+            comando = CrearProcesoAnonimizacion(
+                fecha_creacion=str(datetime.now()),
+                fecha_actualizacion=str(datetime.now()),
+                id=str(uuid.uuid4()),
+                id_partner=mc.id_partner,
+                datos=datos
             )
             
             ejecutar_commando(comando)
+            print("Proceso de anonimización iniciado")
             
-            # Confirmar recepción del mensaje
-            consumidor.acknowledge(mensaje)
-            
+            consumidor.acknowledge(mensaje)     
+
         cliente.close()
-    except Exception as e:
-        logging.error(f'ERROR: Suscribiéndose al tópico de eventos! {str(e)}')
+    except:
+        logging.error('ERROR: Suscribiendose al tópico de eventos!')
         traceback.print_exc()
         if cliente:
             cliente.close()
@@ -71,51 +60,29 @@ def suscribirse_a_comandos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        consumidor = cliente.subscribe(
-            'comandos-proceso_anonimizacion', 
-            consumer_type=_pulsar.ConsumerType.Shared, 
-            subscription_name='anonimizacion-sub-comandos',
-            schema=AvroSchema(ComandoAnonimizarProceso)
-        )
-
-        from saludtech.servicio_anonimizacion.api import create_app
-        app = create_app({'TESTING': False})
+        consumidor = cliente.subscribe('comandos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared, subscription_name='anonimizacion-sub-comandos', schema=AvroSchema(ComandoCrearProcesoAnonimizacion))
 
         while True:
             mensaje = consumidor.receive()
-            comando_data = mensaje.value().data
+          
+            print(f'Comando recibido: {mensaje.value().data}')
+            mc = mensaje.value().data
+            datos = ast.literal_eval(mc.datos)
+            datos_comando: list[DatoDTO] = list()
             
-            print(f'Comando recibido: {comando_data}')
+            for dato in datos:
+                dato_dto = DatoDTO(dato.get('tipo'), dato.get('contenido'), dato.get('anonimizado', False))
+                datos_comando.append(dato_dto)
+
+            comando = CrearProcesoAnonimizacion(fecha_creacion=mc.fecha_creacion, fecha_actualizacion=mc.fecha_actualizacion, id=mc.id_proceso_anonimizacion, id_partner=mc.id_partner, datos=datos_comando)
+            ejecutar_commando(comando)
             
-            # Convert command data to DTO
-            imagenes = []
-            for img_data in comando_data.imagenes:
-                imagen_dto = ImagenAnonimizadaDTO(
-                    tipo=img_data['tipo'],
-                    archivo=img_data['archivo'],
-                    archivo_original=img_data.get('archivo_original', '')
-                )
-                imagenes.append(imagen_dto)
-            
-            # Create the command
-            comando = AnonimizarProceso(
-                fecha_creacion=comando_data.fecha_creacion,
-                fecha_actualizacion=comando_data.fecha_actualizacion,
-                id=comando_data.id_proceso_anonimizacion,
-                imagenes=imagenes,
-                id_proceso_original=comando_data.id_proceso_original
-            )
-            
-            # Execute the command within a Flask app context
-            with app.app_context():
-                ejecutar_commando(comando)
-            
-            print("Comando de anonimización ejecutado")
-            consumidor.acknowledge(mensaje)
+            print("Comando ejecutado")
+            consumidor.acknowledge(mensaje)     
             
         cliente.close()
-    except Exception as e:
-        logging.error(f'ERROR: Suscribiéndose al tópico de comandos! {str(e)}')
+    except:
+        logging.error('ERROR: Suscribiendose al tópico de comandos!')
         traceback.print_exc()
         if cliente:
             cliente.close()

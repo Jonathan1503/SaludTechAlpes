@@ -2,6 +2,7 @@ from saludtech.servicio_anonimizacion.config.db import db
 from saludtech.servicio_anonimizacion.seedwork.infraestructura.uow import UnidadTrabajo, Batch
 
 class UnidadTrabajoSQLAlchemy(UnidadTrabajo):
+
     def __init__(self):
         self._batches: list[Batch] = list()
 

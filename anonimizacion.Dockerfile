@@ -9,5 +9,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-
-CMD [ "flask", "--app", "./src/saludtech/servicio_anonimizacion/api", "run", "--host=0.0.0.0"]
+CMD ["flask", "--app", "./src/saludtech/servicio_anonimizacion/api", "run", "--host=0.0.0.0"]

@@ -3,7 +3,7 @@ from saludtech.servicio_anonimizacion.seedwork.dominio.fabricas import Fabrica
 from saludtech.servicio_anonimizacion.seedwork.dominio.repositorios import Repositorio
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.dominio.repositorios import RepositorioProcesoAnonimizacion
 from .repositorios import RepositorioProcesoAnonimizacionPg
-from .excepciones import NoExisteImplementacionParaTipoFabricaExcepcion
+from .excepciones import ExcepcionFabrica
 
 @dataclass
 class FabricaRepositorio(Fabrica):
@@ -11,4 +11,4 @@ class FabricaRepositorio(Fabrica):
         if obj == RepositorioProcesoAnonimizacion.__class__:
             return RepositorioProcesoAnonimizacionPg()
         else:
-            raise NoExisteImplementacionParaTipoFabricaExcepcion()
+            raise ExcepcionFabrica()

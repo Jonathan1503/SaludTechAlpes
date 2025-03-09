@@ -162,6 +162,8 @@ services:
       - "5002:5000"
 
   anonimizacion:
+    build:
+      dockerfile: ./anonimizacion.Dockerfile
     container_name: anonimizacion
     hostname: anonimizacion
     image: anonimizacion/flask

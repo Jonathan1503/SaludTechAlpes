@@ -2,7 +2,7 @@ from saludtech.servicio_anonimizacion.seedwork.aplicacion.comandos import Comand
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.fabricas import FabricaRepositorio
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.dominio.fabricas import FabricaAnonimizacion
 
-class AnonimizarProcesoBaseHandler(ComandoHandler):
+class CrearProcesoAnonimizacionBaseHandler(ComandoHandler):
     def __init__(self):
         self._fabrica_repositorio: FabricaRepositorio = FabricaRepositorio()
         self._fabrica_anonimizacion: FabricaAnonimizacion = FabricaAnonimizacion()
