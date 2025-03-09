@@ -13,8 +13,9 @@ def importar_modelos_alchemy():
 def comenzar_consumidor(app):
     import threading
     import saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.consumidores as anonimizacion
-    threading.Thread(target=anonimizacion.suscribirse_a_eventos, args=(app,)).start()
-    threading.Thread(target=anonimizacion.suscribirse_a_comandos, args=(app,)).start()
+    
+    #threading.Thread(target=anonimizacion.suscribirse_a_eventos, args=(app,)).start()
+    #threading.Thread(target=anonimizacion.suscribirse_a_comandos, args=(app,)).start()
 
 def create_app(configuracion={}):
     app = Flask(__name__, instance_relative_config=True)

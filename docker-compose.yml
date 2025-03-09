@@ -174,7 +174,7 @@ services:
     environment:
       - ANONIMIZACION_ADDRESS=anonimizacion
       - PULSAR_ADDRESS=broker
-      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db_anonimizacion:5434/anonimizacion
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db_anonimizacion:5432/anonimizacion
       - BROKER_HOST=broker
     ports:
       - "5001:5000"
