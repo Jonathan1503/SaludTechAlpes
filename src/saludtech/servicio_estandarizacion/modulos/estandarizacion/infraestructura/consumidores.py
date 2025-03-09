@@ -17,7 +17,7 @@ def suscribirse_a_eventos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        consumidor = cliente.subscribe('eventos-proceso_ingestion', consumer_type=_pulsar.ConsumerType.Shared,
+        consumidor = cliente.subscribe('eventos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared,
                                        subscription_name='estandarizacion-sub-eventos',
                                        schema=AvroSchema(EventoProcesoEstandarizacionCreado))
 
