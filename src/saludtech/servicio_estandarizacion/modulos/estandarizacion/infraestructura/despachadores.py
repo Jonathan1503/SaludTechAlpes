@@ -55,5 +55,4 @@ class Despachador:
         )
        
         comando_integracion = ComandoProcesarEstandarizacion(data=payload)
-
         self._publicar_mensaje(comando_integracion, topico, AvroSchema(ComandoProcesarEstandarizacion))

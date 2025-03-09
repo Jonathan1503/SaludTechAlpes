@@ -3,7 +3,6 @@ import json
 from flask import redirect, render_template, request, session, url_for
 from flask import Response
 from saludtech.servicio_estandarizacion.modulos.estandarizacion.aplicacion.mapeadores import MapeadorProcesoEstandarizacionDTOJson
-from saludtech.servicio_estandarizacion.seedwork.aplicacion.comandos import ejecutar_commando
 from saludtech.servicio_estandarizacion.modulos.estandarizacion.aplicacion.dto import ProcesoEstandarizacionDTO
 from saludtech.servicio_estandarizacion.seedwork.dominio.excepciones import ExcepcionDominio
 from multiprocessing import Process
