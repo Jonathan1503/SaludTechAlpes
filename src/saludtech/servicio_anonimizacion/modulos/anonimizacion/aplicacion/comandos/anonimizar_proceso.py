@@ -4,7 +4,6 @@ from .base import AnonimizarProcesoBaseHandler
 from dataclasses import dataclass, field
 from saludtech.servicio_anonimizacion.seedwork.aplicacion.comandos import ejecutar_commando as comando
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.dominio.entidades import ProcesoAnonimizacion
-from saludtech.servicio_anonimizacion.seedwork.infraestructura.uow import UnidadTrabajoPuerto
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.mapeadores import MapeadorProcesoAnonimizacion
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.repositorios import RepositorioProcesoAnonimizacion
 import traceback
@@ -35,20 +34,16 @@ class AnonimizarProcesoHandler(AnonimizarProcesoBaseHandler):
             MapeadorProcesoAnonimizacion()
         )
         
-        # Perform anonymization
         proceso_anonimizacion.anonimizar_proceso()
 
-        # Direct database operations instead of UoW
         repositorio = self.fabrica_repositorio.crear_objeto(RepositorioProcesoAnonimizacion.__class__)
         try:
-            # Direct repository call
             repositorio.agregar(proceso_anonimizacion)
-            # Direct session commit
             db.session.commit()
         except Exception:
             print(traceback.format_exc())
             db.session.rollback()
-            
+
 @comando.register(AnonimizarProceso)
 def ejecutar_comando_anonimizar_proceso(comando: AnonimizarProceso):
     handler = AnonimizarProcesoHandler()

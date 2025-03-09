@@ -118,7 +118,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: anonimizacion
     ports:
-     - "5434:5432"
+     - "5434:5434"
     volumes:
     - pg_data_anon:/var/lib/postgresql/data
     - ./init-db-anonimizacion.sql:/docker-entrypoint-initdb.d/init-db-anonimizacion.sql
@@ -174,7 +174,7 @@ services:
     environment:
       - ANONIMIZACION_ADDRESS=anonimizacion
       - PULSAR_ADDRESS=broker
-      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db:5432/anonimizacion
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db_anonimizacion:5434/anonimizacion
       - BROKER_HOST=broker
     ports:
       - "5001:5000"
