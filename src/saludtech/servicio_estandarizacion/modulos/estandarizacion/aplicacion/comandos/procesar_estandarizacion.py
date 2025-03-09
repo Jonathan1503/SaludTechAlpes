@@ -46,7 +46,7 @@ class ProcesarEstandarizacionHandler(ProcesarEstandarizacionBaseHandler):
             # En un sistema real, este código iría en un worker separado
             for i, imagen in enumerate(proceso_estandarizacion.imagenes):
                 # Simular el proceso de estandarizacion
-                proceso_estandarizacion.imagenes[i] = ImagenEstandarizada(
+                proceso_estandarizacion.imagenes[i] = ImagenEstandarizadaDTO(
                     tipo=imagen.tipo,
                     archivo=imagen.archivo,
                     archivo_estandarizado=f"estandarizado_{imagen.archivo}"
