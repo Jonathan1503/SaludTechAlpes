@@ -29,8 +29,6 @@ def proceso_ingestion_asincronica():
         comando = CrearProcesoIngestion(proceso_ingestion_dto.fecha_creacion, proceso_ingestion_dto.fecha_actualizacion, proceso_ingestion_dto.id, proceso_ingestion_dto.imagenes,proceso_ingestion_dto.id_partner)
       
         hp1=Process(target=ingestion.suscribirse_a_eventos,daemon=True).start()
-        hp2=Process(target=partnership.suscribirse_a_comandos,daemon=True).start()
-        hp3=Process(target=partnership.suscribirse_a_eventos,daemon=True).start()
         hp4=Process(target=ingestion.suscribirse_a_comandos,daemon=True).start()
 
         despachador = Despachador()

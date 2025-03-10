@@ -11,6 +11,7 @@ from saludtech.servicio_estandarizacion.seedwork.infraestructura import utils
 from saludtech.servicio_estandarizacion.seedwork.aplicacion.comandos import ejecutar_commando
 from saludtech.servicio_estandarizacion.modulos.estandarizacion.aplicacion.comandos.procesar_estandarizacion import ProcesarEstandarizacion
 from saludtech.servicio_estandarizacion.modulos.estandarizacion.aplicacion.dto import ImagenEstandarizadaDTO
+from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.schema.v1.eventos import EventoProcesoAnonimizacionCreado
 
 
 def suscribirse_a_eventos():
@@ -19,7 +20,7 @@ def suscribirse_a_eventos():
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
         consumidor = cliente.subscribe('eventos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared,
                                        subscription_name='estandarizacion-sub-eventos',
-                                       schema=AvroSchema(EventoProcesoEstandarizacionCreado))
+                                       schema=AvroSchema(EventoProcesoAnonimizacionCreado))
 
         while True:
             mensaje = consumidor.receive()
@@ -42,7 +43,7 @@ def suscribirse_a_comandos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        consumidor = cliente.subscribe('comandos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared,
+        consumidor = cliente.subscribe('comandos-proceso_estandarizacion', consumer_type=_pulsar.ConsumerType.Shared,
                                        subscription_name='anonimizacion-sub-comandos',
                                        schema=AvroSchema(ComandoProcesarEstandarizacion))
 

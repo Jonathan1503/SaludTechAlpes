@@ -1,3 +1,4 @@
+version: '3'
 networks:
   pulsar:
     driver: bridge
@@ -75,7 +76,7 @@ services:
       - managedLedgerDefaultWriteQuorum=1
       - managedLedgerDefaultAckQuorum=1
       - advertisedAddress=broker
-      - advertisedListeners=external:pulsar://broker:6650
+      - advertisedListeners=external:pulsar://127.0.0.1:6650
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -195,7 +196,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: estandarizacion
     ports:
-      - "5433:5433"
+      - "5433:5432"
     volumes:
       - pg_data_est:/var/lib/postgresql/data
       - ./init-db-estandarizacion.sql:/docker-entrypoint-initdb.d/init-db-estandarizacion.sql

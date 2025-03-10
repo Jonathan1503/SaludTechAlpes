@@ -24,16 +24,16 @@ def comenzar_consumidor():
     import saludtech.servicio_estandarizacion.modulos.estandarizacion.infraestructura.consumidores as estandarizacion
 
     # Suscripción a eventos
-    #threading.Thread(target=estandarizacion.suscribirse_a_eventos).start()
+    threading.Thread(target=estandarizacion.suscribirse_a_eventos).start()
 
     # Suscripción a comandos
-    #threading.Thread(target=estandarizacion.suscribirse_a_comandos).start()
+    threading.Thread(target=estandarizacion.suscribirse_a_comandos).start()
 
 def create_app(configuracion={}):
     # Init la aplicacion de Flask
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postgres@db_estandarizacion:5432/estandarizacion"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postgres@localhost:5433/estandarizacion"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     app.secret_key = 'abc'

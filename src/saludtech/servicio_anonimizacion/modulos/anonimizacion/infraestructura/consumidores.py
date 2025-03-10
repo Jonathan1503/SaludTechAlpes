@@ -6,7 +6,7 @@ import logging
 import traceback
 from datetime import datetime
 from saludtech.servicio_anonimizacion.config.db import db
-
+import ast
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.schema.v1.eventos import EventoProcesoAnonimizacionCreado
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.schema.v1.comandos import ComandoAnonimizarProceso
 from saludtech.servicio_anonimizacion.seedwork.infraestructura import utils
@@ -19,14 +19,7 @@ def suscribirse_a_eventos(app):
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
-        json_schema = utils.consultar_schema_registry("eventos-proceso_ingestion")  
-        avro_schema = utils.obtener_schema_avro_de_diccionario(json_schema)
-        consumidor = cliente.subscribe(
-            'eventos-proceso_ingestion', 
-            consumer_type=_pulsar.ConsumerType.Shared,
-            subscription_name='anonimizacion-sub-eventos',
-            schema=avro_schema
-        )
+        consumidor = cliente.subscribe('eventos-proceso_ingestion', consumer_type=_pulsar.ConsumerType.Shared,subscription_name='saludtech-sub-eventos',schema=AvroSchema(EventoProcesoIngestionCreado))
 
         while True:
             mensaje = consumidor.receive()
@@ -36,16 +29,18 @@ def suscribirse_a_eventos(app):
                 
                 fecha_creacion = datetime.fromtimestamp(evento_data.fecha_creacion / 1000.0).strftime('%Y-%m-%d')
                 id_proceso = str(uuid.uuid4())
-                
-                imagenes = [
-                    ImagenAnonimizadaDTO(tipo="imagen", archivo="anonimizado_imagen.jpg", archivo_original="original.jpg")
-                ]
+                imagenes= ast.literal_eval(evento_data.imagenes)
+                imagenes_comando:list[ImagenAnonimizadaDTO] = list()
+                for imagen in imagenes:
+                    imagen_dto: ImagenAnonimizadaDTO = ImagenAnonimizadaDTO(tipo=imagen.get('tipo'),archivo=imagen.get('archivo'),archivo_original=imagen.get('archivo'))
+                    imagenes_comando.append(imagen_dto)
+             
                 
                 comando = AnonimizarProceso(
                     fecha_creacion=fecha_creacion,
                     fecha_actualizacion=fecha_creacion,
                     id=id_proceso,
-                    imagenes=imagenes,
+                    imagenes=imagenes_comando,
                     id_proceso_original=evento_data.id_proceso_ingestion
                 )
                 

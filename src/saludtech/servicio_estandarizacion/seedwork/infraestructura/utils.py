@@ -7,5 +7,5 @@ def time_millis():
 
 
 def broker_host():
-    return os.getenv('BROKER_HOST', default="broker")
+    return os.getenv('BROKER_HOST', default="localhost")
 

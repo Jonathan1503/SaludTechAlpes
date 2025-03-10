@@ -26,7 +26,7 @@ def suscribirse_a_eventos():
             comando= AgregarProcesoIngestionPartner(id_partner= mc.id_partner,id_proceso_ingestion= mc.id_proceso_ingestion,
             fecha_creacion=str(timecv),fecha_actualizacion= "")
             ejecutar_commando(comando)
-            print(f'Evento recibido: {mensaje.value().data}')
+            print(f'Evento b recibido: {mensaje.value().data}')
             print("boy")
 
             consumidor.acknowledge(mensaje)     

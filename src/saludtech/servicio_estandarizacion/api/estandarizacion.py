@@ -30,8 +30,8 @@ def proceso_estandarizacion_asincronica():
                                         proceso_estandarizacion_dto.id_proceso_ingestion,
                                         proceso_estandarizacion_dto.estado)
 
-        hp1 = Process(target=estandarizacion.suscribirse_a_eventos, daemon=True).start()
-        hp2 = Process(target=estandarizacion.suscribirse_a_comandos, daemon=True).start()
+        #hp1 = Process(target=estandarizacion.suscribirse_a_eventos, daemon=True).start()
+        #hp2 = Process(target=estandarizacion.suscribirse_a_comandos, daemon=True).start()
 
         despachador = Despachador()
         despachador.publicar_comando(comando, 'comandos-proceso_anonimizacion')

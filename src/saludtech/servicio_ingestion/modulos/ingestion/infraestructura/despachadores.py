@@ -38,7 +38,7 @@ class Despachador:
             imagenes= str(imagenes)
             
         )
-        print("evento_publicado")
+        print(f"evento_publicado: {payload}")
         evento_integracion = EventoProcesoIngestionCreado(data=payload)
         self._publicar_mensaje(evento_integracion, topico,AvroSchema(EventoProcesoIngestionCreado))
 

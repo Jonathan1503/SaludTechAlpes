@@ -6,6 +6,7 @@ class HandlerProcesoIngestionIntegracion(Handler):
 
     @staticmethod
     def handle_proceso_ingestion_creado(evento):
+        print("hostia")
         despachador = Despachador()
         despachador.publicar_evento(evento, 'eventos-proceso_ingestion')
 

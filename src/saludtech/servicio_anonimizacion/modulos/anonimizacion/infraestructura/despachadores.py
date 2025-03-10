@@ -21,15 +21,20 @@ class Despachador:
 
     def publicar_evento(self, evento, topico):
         # Crear payload para evento
+        imagenes = list()
+
+        for imagen in evento.imagenes:
+            imagenes.append({"tipo": imagen.tipo, "archivo": imagen.archivo})
         payload = ProcesoAnonimizacionCreadoPayload(
             id_proceso_anonimizacion=str(evento.id_proceso_anonimizacion),
             id_proceso_original=str(evento.id_proceso_original),
-            fecha_creacion=int(datetime.strptime(evento.fecha_creacion, '%Y-%m-%d').timestamp() * 1000)
+            fecha_creacion=int(datetime.strptime(evento.fecha_creacion, '%Y-%m-%d').timestamp() * 1000),
+            imagenes_anonimizadas=str(imagenes)
         )
-        
+
         evento_integracion = EventoProcesoAnonimizacionCreado(data=payload)
         self._publicar_mensaje(evento_integracion, topico, AvroSchema(EventoProcesoAnonimizacionCreado))
-        print("Evento de anonimización publicado")
+        print(f"Evento de anonimización publicado: {payload}")
 
     def publicar_comando(self, comando, topico):
         # Crear payload para comando

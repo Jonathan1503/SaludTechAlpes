@@ -11,20 +11,23 @@ class ProcesoAnonimizacion(AgregacionRaiz):
     id_proceso_original: uuid.UUID = field(hash=True, default=None)
     imagenes: list[ov.ImagenAnonimizada] = field(default_factory=list)
     
-    def anonimizar_proceso(self):
+    def anonimizar_proceso(self,proceso_anonimizacion: ProcesoAnonimizacion ):
         """
         Método principal para iniciar el proceso de anonimización.
         Aplica técnicas de anonimización a los datos/imágenes.
         """
+        self.id_proceso_original = proceso_anonimizacion.id_proceso_original
+        self.imagenes = proceso_anonimizacion.imagenes
         # Anonimiza cada imagen
-        for imagen in self.imagenes:
-            imagen.anonimizar()
+        #for imagen in self.imagenes:
+            #imagen.anonimizar()
         
         # Registra el evento de creación del proceso de anonimización
         self.agregar_evento(
             ProcesoAnonimizacionCreado(
                 id_proceso_anonimizacion=self.id, 
                 id_proceso_original=self.id_proceso_original, 
-                fecha_creacion=self.fecha_creacion
+                fecha_creacion=self.fecha_creacion,
+                imagenes=self.imagenes
             )
         )

@@ -14,16 +14,13 @@ def comenzar_consumidor(app):
     import threading
     import saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.consumidores as anonimizacion
     
-    #threading.Thread(target=anonimizacion.suscribirse_a_eventos, args=(app,)).start()
-    #threading.Thread(target=anonimizacion.suscribirse_a_comandos, args=(app,)).start()
+    threading.Thread(target=anonimizacion.suscribirse_a_eventos, args=(app,)).start()
+    threading.Thread(target=anonimizacion.suscribirse_a_comandos, args=(app,)).start()
 
 def create_app(configuracion={}):
     app = Flask(__name__, instance_relative_config=True)
     
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        'SQLALCHEMY_DATABASE_URI', 
-        "postgresql://postgres:password@postgres-db-anom:5432/anonimizacion"
-    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postgres@localhost:5434/anonimizacion"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_POOL_SIZE'] = 1
     app.config['SQLALCHEMY_MAX_OVERFLOW'] = 0

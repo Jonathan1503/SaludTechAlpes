@@ -8,6 +8,7 @@ from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.mapeadore
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.repositorios import RepositorioProcesoAnonimizacion
 import traceback
 import uuid
+from pydispatch import dispatcher
 
 @dataclass
 class AnonimizarProceso(Comando):
@@ -34,12 +35,16 @@ class AnonimizarProcesoHandler(AnonimizarProcesoBaseHandler):
             MapeadorProcesoAnonimizacion()
         )
         
-        proceso_anonimizacion.anonimizar_proceso()
-
+        proceso_anonimizacion.anonimizar_proceso(proceso_anonimizacion)
+      
         repositorio = self.fabrica_repositorio.crear_objeto(RepositorioProcesoAnonimizacion.__class__)
         try:
             repositorio.agregar(proceso_anonimizacion)
             db.session.commit()
+            eventos=proceso_anonimizacion.eventos
+            for evento in eventos:
+                dispatcher.send(signal=f'{type(evento).__name__}Integracion', evento=evento)
+                dispatcher.send(signal=f'{type(evento).__name__}Dominio', evento=evento)
         except Exception:
             print(traceback.format_exc())
             db.session.rollback()

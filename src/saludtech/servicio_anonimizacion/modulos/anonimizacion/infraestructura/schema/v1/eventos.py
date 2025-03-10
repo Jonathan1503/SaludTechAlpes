@@ -5,6 +5,7 @@ class ProcesoAnonimizacionCreadoPayload(Record):
     id_proceso_anonimizacion = String()
     id_proceso_original = String()
     fecha_creacion = Long()
+    imagenes_anonimizadas = String()
 
 class EventoProcesoAnonimizacionCreado(EventoIntegracion):
     data = ProcesoAnonimizacionCreadoPayload()
