@@ -71,13 +71,8 @@ def suscribirse_a_comandos(app):
                 estado=mc.estado
             )
             with app.app_context():
-                    try:
-                        ejecutar_commando(comando)
-                    except Exception as e:
-                        logging.error(f"Error al ejecutar comando: {str(e)}")
-                        db.session.rollback()
-                    finally:
-                        db.session.remove()  # Asegurarse de cerrar la sesión
+                ejecutar_commando(comando)
+                    
             
 
             print("comando de estandarizacion ejecutado")
