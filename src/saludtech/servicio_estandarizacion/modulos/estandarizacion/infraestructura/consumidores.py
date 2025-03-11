@@ -39,7 +39,7 @@ def suscribirse_a_eventos():
             cliente.close()
 
 
-def suscribirse_a_comandos():
+def suscribirse_a_comandos(app):
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
@@ -56,9 +56,9 @@ def suscribirse_a_comandos():
             imagenes_comando = []
             for img in imagenes:
                 imagen_dto = ImagenEstandarizadaDTO(
-                    tipo=img.tipo,
-                    archivo=img.archivo,
-                    archivo_estandarizado=img.archivo_estandarizado
+                    tipo=img.get("tipo"),
+                    archivo=img.get("archivo"),
+                    archivo_estandarizado=img.get("archivo_estandarizado")
                 )
                 imagenes_comando.append(imagen_dto)
 
@@ -70,9 +70,17 @@ def suscribirse_a_comandos():
                 imagenes=imagenes_comando,
                 estado=mc.estado
             )
-            ejecutar_commando(comando)
+            with app.app_context():
+                    try:
+                        ejecutar_commando(comando)
+                    except Exception as e:
+                        logging.error(f"Error al ejecutar comando: {str(e)}")
+                        db.session.rollback()
+                    finally:
+                        db.session.remove()  # Asegurarse de cerrar la sesión
+            
 
-            print("comando ejecutado")
+            print("comando de estandarizacion ejecutado")
             consumidor.acknowledge(mensaje)
 
         cliente.close()

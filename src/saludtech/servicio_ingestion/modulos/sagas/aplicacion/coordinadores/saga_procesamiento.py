@@ -51,7 +51,7 @@ class CoordinadorProcesos(CoordinadorOrquestacion):
              
 
 
-# TODO Agregue un Listener/Handler para que se puedan redireccionar eventos de dominio
+
 def oir_mensaje(mensaje):
     print(type(mensaje))
     print("bb")

@@ -1,7 +1,5 @@
 import os
-import sys
-sys.stdout.reconfigure(line_buffering=True)
-from flask import Flask, render_template, request, url_for, redirect, jsonify, session
+from flask import Flask,jsonify
 from flask_swagger import swagger
 
 # Identifica el directorio base
@@ -13,7 +11,7 @@ def registrar_handlers():
 def importar_modelos_alchemy():
     import saludtech.servicio_estandarizacion.modulos.estandarizacion.infraestructura.dto
 
-def comenzar_consumidor():
+def comenzar_consumidor(app):
     """
     Este es un código de ejemplo. Aunque esto sea funcional puede ser un poco peligroso tener 
     threads corriendo por si solos. Mi sugerencia es en estos casos usar un verdadero manejador
@@ -24,10 +22,10 @@ def comenzar_consumidor():
     import saludtech.servicio_estandarizacion.modulos.estandarizacion.infraestructura.consumidores as estandarizacion
 
     # Suscripción a eventos
-    threading.Thread(target=estandarizacion.suscribirse_a_eventos).start()
+    threading.Thread(target=estandarizacion.suscribirse_a_eventos, args=(app,)).start()
 
     # Suscripción a comandos
-    threading.Thread(target=estandarizacion.suscribirse_a_comandos).start()
+    threading.Thread(target=estandarizacion.suscribirse_a_comandos, args=(app,)).start()
 
 def create_app(configuracion={}):
     # Init la aplicacion de Flask
@@ -49,9 +47,13 @@ def create_app(configuracion={}):
     registrar_handlers()
 
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"Error al crear las tablas: {e}")
+            raise
         if not app.config.get('TESTING'):
-            comenzar_consumidor()
+            comenzar_consumidor(app)
 
     # Importa Blueprints
     from . import estandarizacion
@@ -69,5 +71,8 @@ def create_app(configuracion={}):
     @app.route("/health")
     def health():
         return {"status": "up"}
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        db.session.remove()
 
     return app

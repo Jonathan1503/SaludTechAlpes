@@ -62,7 +62,7 @@ class Despachador:
                 imagenes.append({"tipo": imagen.tipo, "archivo": imagen.archivo,"archivo_estandarizado":imagen.archivo_estandarizado})
             payload = ComandoProcesarEstandarizacionPayload(
                 id_proceso_ingestion = str(comando.id_proceso_ingestion),
-                fecha_creacion = int(datetime.strptime(comando.fecha_creacion, '%Y-%m-%d').timestamp() * 1000),
+                fecha_creacion = str(comando.fecha_creacion),
                 imagenes= str(imagenes),
                 id_proceso_estandarizacion = str(comando.id),
                 estado = str(comando.estado)

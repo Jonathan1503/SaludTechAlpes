@@ -3,7 +3,7 @@ from enum import Enum
 
 from saludtech.servicio_estandarizacion.seedwork.dominio.entidades import AgregacionRaiz
 from pydispatch import dispatcher
-from saludtech.servicio_estandarizacion.config.db import db
+from saludtech.servicio_ingestion.config.db import db
 import pickle
 
 
@@ -83,7 +83,7 @@ def is_flask():
 
 
 def registrar_unidad_de_trabajo(serialized_obj):
-    from saludtech.servicio_estandarizacion.config.uow import UnidadTrabajoSQLAlchemy
+    from saludtech.servicio_ingestion.config.uow import UnidadTrabajoSQLAlchemy
     from flask import session
 
     session['uow'] = serialized_obj
@@ -91,7 +91,7 @@ def registrar_unidad_de_trabajo(serialized_obj):
 
 def flask_uow():
     from flask import session
-    from saludtech.servicio_estandarizacion.config.uow import UnidadTrabajoSQLAlchemy
+    from saludtech.servicio_ingestion.config.uow import UnidadTrabajoSQLAlchemy
     if session.get('uow'):
         return session['uow']
     else:
