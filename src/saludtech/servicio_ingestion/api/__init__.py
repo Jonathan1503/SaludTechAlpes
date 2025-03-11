@@ -23,10 +23,11 @@ def comenzar_consumidor():
 
     import threading
     import saludtech.servicio_ingestion.modulos.partnership.infraestructura.consumidores as partnership
+    import saludtech.servicio_ingestion.modulos.sagas.infraestructura.consumidores as sagas
     import saludtech.servicio_ingestion.modulos.ingestion.infraestructura.consumidores as ingestion
 
     # Suscripción a eventos
-    #threading.Thread(target=partnership.suscribirse_a_eventos).start()
+    threading.Thread(target=sagas.suscribirse_a_eventos).start()
     #threading.Thread(target=ingestion.suscribirse_a_eventos).start()
 
     # Suscripción a comandos
@@ -52,11 +53,15 @@ def create_app(configuracion={}):
     from saludtech.servicio_ingestion.config.db import db
     importar_modelos_alchemy()
     registrar_handlers()
-
+    coordinador = None
     with app.app_context():
         db.create_all()
         if not app.config.get('TESTING'):
             comenzar_consumidor()
+    
+        from saludtech.servicio_ingestion.modulos.sagas.aplicacion.coordinadores.saga_procesamiento import CoordinadorProcesos
+        coordinador=CoordinadorProcesos()
+        coordinador.inicializar_pasos()
 
      # Importa Blueprints
     from . import partnership

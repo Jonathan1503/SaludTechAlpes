@@ -13,7 +13,7 @@ class ComandoProcesarEstandarizacionPayload(Record):
     fecha_creacion = String()
     fecha_actualizacion = String()
     id_proceso_estandarizacion = String()
-    imagenes = Array(Imagen())
+    imagenes = String()
     estado = String()
 
 class ComandoProcesarEstandarizacion(ComandoIntegracion):

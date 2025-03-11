@@ -2,25 +2,18 @@ from saludtech.servicio_ingestion.seedwork.aplicacion.sagas import CoordinadorOr
 from saludtech.servicio_ingestion.seedwork.aplicacion.comandos import Comando
 from saludtech.servicio_ingestion.seedwork.dominio.eventos import EventoDominio
 
-from aeroalpes.modulos.sagas.aplicacion.comandos.cliente import RegistrarUsuario, ValidarUsuario
-from aeroalpes.modulos.sagas.aplicacion.comandos.pagos import PagarReserva, RevertirPago
-from aeroalpes.modulos.sagas.aplicacion.comandos.gds import ConfirmarReserva, RevertirConfirmacion
 from saludtech.servicio_ingestion.modulos.ingestion.aplicacion.comandos.crear_proceso_ingestion import CrearProcesoIngestion
 from saludtech.servicio_ingestion.modulos.ingestion.aplicacion.comandos.cancelar_proceso_ingestion import CancelarProcesoIngestion
-from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.comandos.anonimizar_proceso import AnonimizarProceso
-from saludtech.servicio_anonimizacion.modulos.anonimizacion.aplicacion.comandos.cancelar_proceso_anonimizacion import CancelarProcesoAnonimizacion
-from saludtech.servicio_estandarizacion.modulos.estandarizacion.aplicacion.comandos.procesar_estandarizacion import ProcesarEstandarizacion
-from saludtech.servicio_estandarizacion.modulos.estandarizacion.aplicacion.comandos.cancelar_proceso_estandarizacion import CancelarProcesoEstandarizacion
-from aeroalpes.modulos.vuelos.aplicacion.comandos.aprobar_reserva import AprobarReserva
-from aeroalpes.modulos.vuelos.aplicacion.comandos.cancelar_reserva import CancelarReserva
-from saludtech.servicio_ingestion.modulos.ingestion.dominio.eventos import ProcesoIngestionCreado, ReservaCancelada, ReservaAprobada, CreacionProcesoIngestionFallido, AprobacionReservaFallida
+from saludtech.servicio_ingestion.modulos.sagas.aplicacion.comandos.anonimizacion import AnonimizarProceso,CancelarProcesoAnonimizacion
+from saludtech.servicio_ingestion.modulos.sagas.aplicacion.comandos.estandarizacion import ProcesarEstandarizacion, CancelarProcesoEstandarizacion
+from saludtech.servicio_ingestion.modulos.ingestion.dominio.eventos import ProcesoIngestionCreado, CreacionProcesoIngestionFallido
 from saludtech.servicio_anonimizacion.modulos.anonimizacion.dominio.eventos import ProcesoAnonimizacionCreado,CreacionProcesoAnonimizacionFallido
 from saludtech.servicio_estandarizacion.modulos.estandarizacion.dominio.eventos import ProcesoEstandarizacionCreado,CreacionProcesoEstandarizacionFallido
-from aeroalpes.modulos.sagas.dominio.eventos.pagos import ReservaPagada, PagoRevertido
-from aeroalpes.modulos.sagas.dominio.eventos.gds import ReservaGDSConfirmada, ConfirmacionGDSRevertida, ConfirmacionFallida
-
-
-class CoordinadorReservas(CoordinadorOrquestacion):
+from saludtech.servicio_ingestion.modulos.sagas.infraestructura.dto import EventoDataLog
+from saludtech.servicio_ingestion.config.db import db
+from saludtech.servicio_ingestion.modulos.sagas.aplicacion.mapeadores import MapeadorSagas
+from saludtech.servicio_ingestion.api  import __init__
+class CoordinadorProcesos(CoordinadorOrquestacion):
 
     def inicializar_pasos(self):
         self.pasos = [
@@ -28,7 +21,6 @@ class CoordinadorReservas(CoordinadorOrquestacion):
             Transaccion(index=1, comando=CrearProcesoIngestion, evento=ProcesoIngestionCreado, error=CreacionProcesoIngestionFallido, compensacion=CancelarProcesoIngestion),
             Transaccion(index=2, comando=AnonimizarProceso, evento=ProcesoAnonimizacionCreado, error=CreacionProcesoAnonimizacionFallido, compensacion=CancelarProcesoAnonimizacion),
             Transaccion(index=3, comando=ProcesarEstandarizacion, evento=ProcesoEstandarizacionCreado, error=CreacionProcesoEstandarizacionFallido, compensacion=CancelarProcesoEstandarizacion),
-            Transaccion(index=4, comando=AprobarReserva, evento=ReservaAprobada, error=AprobacionReservaFallida, compensacion=CancelarReserva),
             Fin(index=5)
         ]
 
@@ -39,21 +31,27 @@ class CoordinadorReservas(CoordinadorOrquestacion):
         self.persistir_en_saga_log(self.pasos[-1])
 
     def persistir_en_saga_log(self, mensaje):
-        # TODO Persistir estado en DB
-        # Probablemente usted podría usar un repositorio para ello
-        ...
+        id_correlacion = mensaje.id_correlacion
+        evento = str(mensaje)
+        evento_datalog = EventoDataLog()
+        evento_datalog.id=id_correlacion
+        evento_datalog.evento = evento
+        db.session.add(evento_datalog)
 
     def construir_comando(self, evento: EventoDominio, tipo_comando: type):
-        # TODO Transforma un evento en la entrada de un comando
-        # Por ejemplo si el evento que llega es ReservaCreada y el tipo_comando es PagarReserva
-        # Debemos usar los atributos de ReservaCreada para crear el comando PagarReserva
-        ...
+        mapeador = MapeadorSagas()
+        if tipo_comando == type(AnonimizarProceso):
+            comando = mapeador.evento_a_anonimizacion(evento)
+            return comando
+        elif tipo_comando == type(ProcesarEstandarizacion):
+            comando = mapeador.evento_a_estandarizacion(evento)
+            return comando
+             
 
 
 # TODO Agregue un Listener/Handler para que se puedan redireccionar eventos de dominio
 def oir_mensaje(mensaje):
     if isinstance(mensaje, EventoDominio):
-        coordinador = CoordinadorReservas()
-        coordinador.procesar_evento(mensaje)
+        __init__.coordinador.procesar_evento(mensaje)
     else:
         raise NotImplementedError("El mensaje no es evento de Dominio")
