@@ -83,21 +83,21 @@ def suscribirse_a_comandos(app):
                 comando_data = mensaje.value().data
                 print(f'Comando recibido: {comando_data}')
                 
-                imagenes = []
-                for img_data in comando_data.imagenes:
-                    imagen_dto = ImagenAnonimizadaDTO(
-                        tipo=img_data['tipo'],
-                        archivo=img_data['archivo'],
-                        archivo_original=img_data.get('archivo_original', '')
-                    )
-                    imagenes.append(imagen_dto)
+                fecha_creacion = datetime.fromtimestamp(comando_data.fecha_creacion / 1000.0).strftime('%Y-%m-%d')
+                id_proceso = str(uuid.uuid4())
+                imagenes= ast.literal_eval(comando_data.imagenes)
+                imagenes_comando:list[ImagenAnonimizadaDTO] = list()
+                for imagen in imagenes:
+                    imagen_dto: ImagenAnonimizadaDTO = ImagenAnonimizadaDTO(tipo=imagen.get('tipo'),archivo=imagen.get('archivo'),archivo_original=imagen.get('archivo'))
+                    imagenes_comando.append(imagen_dto)
+             
                 
                 comando = AnonimizarProceso(
-                    fecha_creacion=comando_data.fecha_creacion,
-                    fecha_actualizacion=comando_data.fecha_actualizacion,
-                    id=comando_data.id_proceso_anonimizacion,
-                    imagenes=imagenes,
-                    id_proceso_original=comando_data.id_proceso_original
+                    fecha_creacion=fecha_creacion,
+                    fecha_actualizacion=fecha_creacion,
+                    id=id_proceso,
+                    imagenes=imagenes_comando,
+                    id_proceso_original=evento_data.id_proceso_ingestion
                 )
                 
                 with app.app_context():

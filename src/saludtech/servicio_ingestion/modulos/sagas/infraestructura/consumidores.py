@@ -6,22 +6,40 @@ import logging
 import traceback
 import ast
 from saludtech.servicio_ingestion.modulos.ingestion.infraestructura.schema.v1.eventos import EventoProcesoIngestionCreado
+from saludtech.servicio_anonimizacion.modulos.anonimizacion.infraestructura.schema.v1.eventos import EventoProcesoAnonimizacionCreado
+#from saludtech.servicio_estandarizacion.modulos.estandarizacion.infraestructura.schema.v1.eventos import EventoProcesoAnonimizacionCreado
 from saludtech.servicio_ingestion.modulos.ingestion.infraestructura.schema.v1.comandos import ComandoCrearProcesoIngestion
 from saludtech.servicio_ingestion.seedwork.infraestructura import utils
 from saludtech.servicio_ingestion.seedwork.aplicacion.comandos import ejecutar_commando
 from saludtech.servicio_ingestion.modulos.ingestion.aplicacion.comandos.crear_proceso_ingestion import CrearProcesoIngestion
 from saludtech.servicio_ingestion.modulos.ingestion.aplicacion.dto import ImagenDTO
 from saludtech.servicio_ingestion.modulos.sagas.aplicacion.coordinadores.saga_procesamiento import oir_mensaje
+import saludtech.servicio_ingestion.modulos.ingestion.dominio.objetos_valor as ov
+from saludtech.servicio_ingestion.modulos.ingestion.dominio.eventos import ProcesoIngestionCreado
+from datetime import datetime
 def suscribirse_a_eventos():
     cliente = None
     try:
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
         consumidor = cliente.subscribe('eventos-proceso_ingestion', consumer_type=_pulsar.ConsumerType.Shared,subscription_name='saludtech-sub-eventos',schema=AvroSchema(EventoProcesoIngestionCreado))
-        consumidor = cliente.subscribe('eventos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared,subscription_name='estandarizacion-sub-eventos',schema=AvroSchema(EventoProcesoAnonimizacionCreado))
+        #consumidor = cliente.subscribe('eventos-proceso_anonimizacion', consumer_type=_pulsar.ConsumerType.Shared,subscription_name='estandarizacion-sub-eventos',schema=AvroSchema(EventoProcesoAnonimizacionCreado))
         while True:
             mensaje = consumidor.receive()
-            print(f'Evento recibido: {mensaje.value().data}')
-            oir_mensaje(mensaje)
+            mc=mensaje.value().data
+            imagenes = ast.literal_eval(mc.imagenes)
+            imagenes_evento:list[ov.Imagen] = list()
+            for imagen in imagenes:
+                imagen_dto: ov.Imagen = ov.Imagen(tipo=imagen.get('tipo'),archivo=imagen.get('archivo'))
+                imagenes_evento.append(imagen_dto)
+            evento_dominio = ProcesoIngestionCreado(
+                id_proceso_ingestion = uuid.UUID(mc.id_proceso_ingestion),
+                id_partner = uuid.uuid4(),
+                fecha_creacion = datetime.fromtimestamp(mc.fecha_creacion / 1000.0).strftime('%Y-%m-%d'),
+                imagenes= imagenes_evento
+                
+            )
+            print(f'Evento recibido2: {mensaje.value().data}')
+            oir_mensaje(evento_dominio)
             consumidor.acknowledge(mensaje)     
 
         cliente.close()

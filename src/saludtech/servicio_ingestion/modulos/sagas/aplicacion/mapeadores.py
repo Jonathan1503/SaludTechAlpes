@@ -7,12 +7,11 @@ from saludtech.servicio_ingestion.modulos.sagas.aplicacion.comandos.estandarizac
 class MapeadorSagas():
 
     def evento_a_anonimizacion(self,evento):
-            fecha_creacion = datetime.fromtimestamp(evento.fecha_creacion / 1000.0).strftime('%Y-%m-%d')
+            fecha_creacion = evento.fecha_creacion
             id_proceso = str(uuid.uuid4())
-            imagenes= ast.literal_eval(evento.imagenes)
             imagenes_comando:list[ImagenAnonimizadaDTO] = list()
-            for imagen in imagenes:
-                imagen_dto: ImagenAnonimizadaDTO = ImagenAnonimizadaDTO(tipo=imagen.get('tipo'),archivo=imagen.get('archivo'),archivo_original=imagen.get('archivo'))
+            for imagen in evento.imagenes:
+                imagen_dto: ImagenAnonimizadaDTO = ImagenAnonimizadaDTO(tipo=imagen.tipo,archivo=imagen.archivo,archivo_original=imagen.archivo)
                 imagenes_comando.append(imagen_dto)
             
             
@@ -26,13 +25,12 @@ class MapeadorSagas():
             return comando
     
     def evento_a_estandarizacion(self,evento):
-        fecha_creacion=datetime.fromtimestamp(evento.fecha_creacion / 1000.0).strftime('%Y-%m-%d')
+        fecha_creacion=evento.fecha_creacion
         id_proceso_ingestion= str(evento.id_proceso_original)
         id_proceso = str(uuid.uuid4())
-        imagenes= ast.literal_eval(evento.imagenes)
         imagenes_comando:list[ImagenEstandarizadaDTO] = list()
-        for imagen in imagenes:
-                imagen_dto: ImagenEstandarizadaDTO = ImagenEstandarizadaDTO(tipo=imagen.get('tipo'),archivo=imagen.get('archivo'),archivo_estandarizado=True)
+        for imagen in evento.imagenes:
+                imagen_dto: ImagenEstandarizadaDTO = ImagenEstandarizadaDTO(tipo=imagen.tipo,archivo=imagen.archivo,archivo_estandarizado=True)
                 imagenes_comando.append(imagen_dto)
         comando= ProcesarEstandarizacion(
             fecha_creacion= fecha_creacion,

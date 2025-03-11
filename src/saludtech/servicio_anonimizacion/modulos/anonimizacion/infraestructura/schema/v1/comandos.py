@@ -7,7 +7,7 @@ class ComandoAnonimizarProcesoPayload(Record):
     fecha_creacion = String()
     fecha_actualizacion = String()
     id_proceso_anonimizacion = String()
-    imagenes = Array(Map(String()))
+    imagenes = String()
 
 class ComandoAnonimizarProceso(ComandoIntegracion):
     data = ComandoAnonimizarProcesoPayload()

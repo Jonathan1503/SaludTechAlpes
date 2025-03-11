@@ -12,7 +12,7 @@ from saludtech.servicio_estandarizacion.modulos.estandarizacion.dominio.eventos 
 from saludtech.servicio_ingestion.modulos.sagas.infraestructura.dto import EventoDataLog
 from saludtech.servicio_ingestion.config.db import db
 from saludtech.servicio_ingestion.modulos.sagas.aplicacion.mapeadores import MapeadorSagas
-from saludtech.servicio_ingestion.api  import __init__
+#from saludtech.servicio_ingestion.api  import __init__
 class CoordinadorProcesos(CoordinadorOrquestacion):
 
     def inicializar_pasos(self):
@@ -39,9 +39,16 @@ class CoordinadorProcesos(CoordinadorOrquestacion):
         db.session.add(evento_datalog)
 
     def construir_comando(self, evento: EventoDominio, tipo_comando: type):
+        print(evento)
+        print("ddd")
         mapeador = MapeadorSagas()
-        if tipo_comando == type(AnonimizarProceso):
+        print(tipo_comando)
+        print(type(AnonimizarProceso))
+        if tipo_comando == AnonimizarProceso:
+            print("ala")
             comando = mapeador.evento_a_anonimizacion(evento)
+            print(comando)
+            print("siu")
             return comando
         elif tipo_comando == type(ProcesarEstandarizacion):
             comando = mapeador.evento_a_estandarizacion(evento)
@@ -51,7 +58,12 @@ class CoordinadorProcesos(CoordinadorOrquestacion):
 
 # TODO Agregue un Listener/Handler para que se puedan redireccionar eventos de dominio
 def oir_mensaje(mensaje):
+    print(type(mensaje))
+    print("bb")
+
     if isinstance(mensaje, EventoDominio):
-        __init__.coordinador.procesar_evento(mensaje)
+        coordinador=CoordinadorProcesos()
+        coordinador.inicializar_pasos()
+        coordinador.procesar_evento(mensaje)
     else:
         raise NotImplementedError("El mensaje no es evento de Dominio")
