@@ -39,18 +39,13 @@ class CoordinadorProcesos(CoordinadorOrquestacion):
         db.session.add(evento_datalog)
 
     def construir_comando(self, evento: EventoDominio, tipo_comando: type):
-        print(evento)
-        print("ddd")
+       
         mapeador = MapeadorSagas()
-        print(tipo_comando)
-        print(type(AnonimizarProceso))
+      
         if tipo_comando == AnonimizarProceso:
-            print("ala")
             comando = mapeador.evento_a_anonimizacion(evento)
-            print(comando)
-            print("siu")
             return comando
-        elif tipo_comando == type(ProcesarEstandarizacion):
+        elif tipo_comando == ProcesarEstandarizacion:
             comando = mapeador.evento_a_estandarizacion(evento)
             return comando
              

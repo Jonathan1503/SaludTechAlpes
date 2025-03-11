@@ -53,7 +53,7 @@ class Despachador:
                 id = str(comando.id),
             )
             evento_integracion = ComandoAnonimizarProceso(data=payload)
-            self._publicar_mensaje(comando, "comandos-proceso_anonimizacion",AvroSchema(ComandoAnonimizarProceso))
+            self._publicar_mensaje(evento_integracion, "comandos-proceso_anonimizacion",AvroSchema(ComandoAnonimizarProceso))
             print("pasoaca")
 
         elif isinstance(comando,ProcesarEstandarizacion):

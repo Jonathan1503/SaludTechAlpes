@@ -28,6 +28,7 @@ def comenzar_consumidor():
 
     # Suscripción a eventos
     threading.Thread(target=sagas.suscribirse_a_eventos).start()
+    threading.Thread(target=sagas.suscribirse_a_eventos2).start()
     #threading.Thread(target=ingestion.suscribirse_a_eventos).start()
 
     # Suscripción a comandos
